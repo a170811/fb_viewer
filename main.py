@@ -10,7 +10,10 @@ load_dotenv()
 email = os.getenv("EMAIL")
 password = os.getenv("PASSWORD")
 if email is None or password is None:
-    raise Exception("Please enter email and password")
+    raise Exception(
+        "Please enter email and password, setting with "
+        "environment variable by `EMAIL` and `PASSWORD`."
+    )
 
 
 if "__main__" == __name__:
