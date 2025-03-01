@@ -20,11 +20,8 @@ if "__main__" == __name__:
         logger.warning("No login credentials found. Running without login.")
         logger.warning("Set EMAIL and PASSWORD environment variables to enable login.")
     
-    # View posts with default filters
-    viewer.view_posts("台中租屋")
-    
     # Example with custom filters:
-    viewer.view_posts("台中租屋", filter_keywords=[
+    viewer.view_posts_by_search("台中租屋", filter_keywords=[
                 "西屯", "南屯", "南區", "大里", "求租", 
                 "龍井", "梧棲", "沙鹿", "售價", "3房", 
                 "社宅", "社會住宅"

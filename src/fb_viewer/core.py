@@ -46,17 +46,7 @@ class FBViewer:
         self.is_login = True
         logger.info(f"{email} login successful")
 
-    def _login_website(self, email: str, password: str):
-        self.driver.get(self.login_url)
-        element = self.driver.find_element(By.NAME, "email")
-        element.send_keys(email)
-        element = self.driver.find_element(By.NAME, "pass")
-        element.send_keys(password)
-        time.sleep(10)  # tricky: if removing this line, login will be failed
-        element.send_keys(Keys.RETURN)
-        time.sleep(10)
-
-    def view_posts(self, key: str, filter_keywords: list=[]):
+    def view_posts_by_search(self, key: str, filter_keywords: list=[]):
         """
         View and filter posts from a Facebook group or page.
         
@@ -84,11 +74,7 @@ class FBViewer:
         listitem_element.click()
         time.sleep(2)
 
-        while True:
-            self._expand_post()
-            for keyword in filter_keywords:
-                self._filter_post(keyword)
-            time.sleep(2)
+        self._view_posts(filter_keywords)
 
     def _expand_post(self):
         while True:
@@ -118,3 +104,20 @@ class FBViewer:
                 self.driver.execute_script("arguments[0].remove();", element_to_remove)
             except NoSuchElementException:
                 return
+
+    def _login_website(self, email: str, password: str):
+        self.driver.get(self.login_url)
+        element = self.driver.find_element(By.NAME, "email")
+        element.send_keys(email)
+        element = self.driver.find_element(By.NAME, "pass")
+        element.send_keys(password)
+        time.sleep(10)  # tricky: if removing this line, login will be failed
+        element.send_keys(Keys.RETURN)
+        time.sleep(10)
+
+    def _view_posts(self, filter_keywords: list=[]):
+        while True:
+            self._expand_post()
+            for keyword in filter_keywords:
+                self._filter_post(keyword)
+            time.sleep(2)
