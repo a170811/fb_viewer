@@ -79,7 +79,7 @@ class FBViewer:
         time.sleep(2)
         listitem_element = self.driver.find_element(
             By.XPATH,
-            "(//div[@role='listitem'])[2]",
+            "(//div[@role='listitem' and ../@role='list'])[2]",
         )
         listitem_element.click()
         time.sleep(2)
