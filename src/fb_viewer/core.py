@@ -16,17 +16,15 @@ class FBViewer:
     login_url = "https://www.facebook.com"
     is_login = False
 
-    def __init__(self, email: str, password: str):
+    def __init__(self):
         options = Options()
         options.add_argument("--disable-notifications")
         self.driver = webdriver.Chrome(options=options)
-        self.email = email
-        self.password = password
 
     def quit(self):
         self.driver.quit()
 
-    def _login(self):
+    def login(self, email: str, password: str):
         if self.is_login:
             return
 
@@ -39,12 +37,14 @@ class FBViewer:
                 self.driver.add_cookie(cookies)
             logger.info("Login with existing cookies")
         else:
-            self._login_website(self.email, self.password)
+            self._login_website(email, password)
             cookies = self.driver.get_cookies()
             cookies_path.parent.mkdir(parents=True, exist_ok=True)
             with open(cookies_path, "w") as f:
                 json.dump(cookies, f, indent=4)
             logger.info(f"Save cookies to {cookies_path}")
+        self.is_login = True
+        logger.info(f"{email} login successful")
 
     def _login_website(self, email: str, password: str):
         self.driver.get(self.login_url)
@@ -55,11 +55,18 @@ class FBViewer:
         time.sleep(10)  # tricky: if removing this line, login will be failed
         element.send_keys(Keys.RETURN)
         time.sleep(10)
-        self.is_login = True
-        logger.info(f"{email} login successful")
 
-    def view_posts(self, key: str):
-        self._login()
+    def view_posts(self, key: str, filter_keywords: list=[]):
+        """
+        View and filter posts from a Facebook group or page.
+        
+        Args:
+            key: The search keyword to find the group/page
+            filter_keywords: List of keywords to filter out posts.
+        """
+        if not self.is_login:
+            logger.warning("Not logged in. Some features may not work properly.")
+            
         self.driver.get(self.login_url)
         time.sleep(5)
 
@@ -79,18 +86,8 @@ class FBViewer:
 
         while True:
             self._expand_post()
-            self._filter_post("西屯")
-            self._filter_post("南屯")
-            self._filter_post("南區")
-            self._filter_post("大里")
-            self._filter_post("求租")
-            self._filter_post("龍井")
-            self._filter_post("梧棲")
-            self._filter_post("沙鹿")
-            self._filter_post("售價")
-            self._filter_post("3房")
-            self._filter_post("社宅")
-            self._filter_post("社會住宅")
+            for keyword in filter_keywords:
+                self._filter_post(keyword)
             time.sleep(2)
 
     def _expand_post(self):
@@ -105,7 +102,6 @@ class FBViewer:
                 # self.driver.execute_script("arguments[0].scrollIntoView();", element) # noqa
                 self.driver.execute_script("arguments[0].click();", element)
             except NoSuchElementException:
-                logger.debug("no viewing more element")
                 break
 
     def _filter_post(self, key: str):
@@ -117,8 +113,8 @@ class FBViewer:
                     ".//div[@data-ad-preview='message']"
                     f"[contains(., '{key}') and not (contains(., '#{key}'))]]",
                 )
-                logger.info(f"match {key}")
-                logger.info(f"remove {element_to_remove.text.strip()}")
+                logger.debug(f"match {key}")
+                logger.debug(f"remove {element_to_remove.text.strip()}")
                 self.driver.execute_script("arguments[0].remove();", element_to_remove)
             except NoSuchElementException:
                 return
