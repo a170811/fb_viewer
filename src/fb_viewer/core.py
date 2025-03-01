@@ -36,6 +36,8 @@ class FBViewer:
             for cookies in cookies_list:
                 self.driver.add_cookie(cookies)
             logger.info("Login with existing cookies")
+            self.driver.get(self.login_url)
+            time.sleep(2)
         else:
             self._login_website(email, password)
             cookies = self.driver.get_cookies()
@@ -45,6 +47,14 @@ class FBViewer:
             logger.info(f"Save cookies to {cookies_path}")
         self.is_login = True
         logger.info(f"{email} login successful")
+
+    def view_posts_by_url(self, url: str, filter_keywords: list=[]):
+        if not self.is_login:
+            logger.warning("Not logged in. Some features may not work properly.")
+
+        self.driver.get(url)
+        time.sleep(5)
+        self._view_posts(filter_keywords)
 
     def view_posts_by_search(self, key: str, filter_keywords: list=[]):
         """
