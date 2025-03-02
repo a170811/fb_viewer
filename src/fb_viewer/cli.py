@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+"""
+Command-line interface for FB Viewer.
+"""
 import argparse
 import os
 import sys
@@ -6,10 +10,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 from loguru import logger
 
-from src.config import Config, ViewerMode, ConfigError
-from src.fb_viewer import FBViewer
-
-load_dotenv()
+from .config import Config, ViewerMode, ConfigError
+from . import FBViewer
 
 
 def parse_args():
@@ -17,7 +19,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Facebook Viewer")
     parser.add_argument(
         "--config", "-c",
-        help="Configuration to use (default: badminton)"
+        help="Configuration to use"
     )
     parser.add_argument(
         "--config-file", "-f",
@@ -31,7 +33,9 @@ def parse_args():
     return parser.parse_args()
 
 
-if "__main__" == __name__:
+def main():
+    """Main entry point for the console script."""
+    load_dotenv()
     args = parse_args()
     
     # Load configuration
@@ -92,3 +96,7 @@ if "__main__" == __name__:
         viewer.view_posts_by_url(viewer_args["url"], filter_keywords=filter_keywords)
     elif mode == ViewerMode.BY_SEARCH:
         viewer.view_posts_by_search(viewer_args["search_key"], filter_keywords=filter_keywords)
+
+
+if __name__ == "__main__":
+    main()

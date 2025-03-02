@@ -1,7 +1,7 @@
 [project]
 name = "fb-viewer"
 version = "0.1.0"
-description = "Add your description here"
+description = "A tool for viewing and filtering Facebook posts"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -11,3 +11,6 @@ dependencies = [
     "selenium>=4.26.1",
     "tomli>=2.0.1",
 ]
+
+[project.scripts]
+fbrowser = "fb_viewer.cli:main"

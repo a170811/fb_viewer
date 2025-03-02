@@ -9,6 +9,7 @@ A tool for viewing and filtering Facebook posts from groups or search results.
 - Filter posts by keywords
 - Configurable settings using TOML files for different use cases (rental, badminton, etc.)
 - Login support with cookies persistence
+- Command-line interface with the `fbrowser` command
 
 ## Installation
 
@@ -17,26 +18,28 @@ A tool for viewing and filtering Facebook posts from groups or search results.
 git clone https://github.com/yourusername/fb_viewer.git
 cd fb_viewer
 
-# Install dependencies
-pip install -e .
+# Install the package in development mode using uv
+uv pip install -e .
 ```
 
 ## Usage
 
-### Basic Usage
+### Command-line Interface
+
+After installation, you can use the `fbrowser` command:
 
 ```bash
 # Run with default configuration
-python main.py
+fbrowser
 
 # Run with a specific configuration
-python main.py --config rental
+fbrowser --config rental
 
 # Use a different configuration file
-python main.py --config-file /path/to/your/config.toml
+fbrowser --config-file /path/to/your/config.toml
 
 # List available configurations
-python main.py --list-configs
+fbrowser --list-configs
 ```
 
 ### Environment Variables
