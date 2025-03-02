@@ -1,14 +1,78 @@
+import argparse
 import os
+import sys
+from pathlib import Path
 
 from dotenv import load_dotenv
 from loguru import logger
 
+from src.config import Config, ViewerMode, ConfigError
 from src.fb_viewer import FBViewer
 
 load_dotenv()
 
 
+def parse_args():
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(description="Facebook Viewer")
+    parser.add_argument(
+        "--config", "-c",
+        help="Configuration to use (default: badminton)"
+    )
+    parser.add_argument(
+        "--config-file", "-f",
+        help="Path to the configuration file (default: config.toml)"
+    )
+    parser.add_argument(
+        "--list-configs", "-l",
+        action="store_true",
+        help="List available configurations"
+    )
+    return parser.parse_args()
+
+
 if "__main__" == __name__:
+    args = parse_args()
+    
+    # Load configuration
+    try:
+        config_manager = Config(args.config_file)
+        logger.info(f"Loaded configuration from {config_manager.config_path}")
+    except ConfigError as e:
+        logger.error(f"Configuration error: {e}")
+        sys.exit(1)
+    
+    # List available configurations if requested
+    if args.list_configs:
+        print("Available configurations:")
+        for name in config_manager.get_config_names():
+            config = config_manager.get_config(name)
+            mode = ViewerMode(config.get("mode"))
+            mode_str = "URL" if mode == ViewerMode.BY_URL else "Search"
+            
+            if mode == ViewerMode.BY_URL:
+                target = config.get("url")
+            else:
+                target = config.get("search_key")
+                
+            print(f"  - {name}: {mode_str} mode, Target: {target}")
+            print(f"    Filter keywords: {', '.join(config.get('filter_keywords', []))}")
+        
+        if config_manager.default_config:
+            print(f"\nDefault configuration: {config_manager.default_config}")
+        
+        sys.exit(0)
+    
+    # Get the selected configuration
+    try:
+        viewer_args = config_manager.get_viewer_args(args.config)
+        config_name = args.config or config_manager.default_config
+        logger.info(f"Using configuration: {config_name}")
+    except ConfigError as e:
+        logger.error(f"Configuration error: {e}")
+        sys.exit(1)
+    
+    # Initialize the viewer
     viewer = FBViewer()
     
     # Optional: Login if credentials are available
@@ -20,15 +84,11 @@ if "__main__" == __name__:
         logger.warning("No login credentials found. Running without login.")
         logger.warning("Set EMAIL and PASSWORD environment variables to enable login.")
     
-    viewer.view_posts_by_url(
-        "https://www.facebook.com/groups/191628104570229/", # 台中羽球同好版
-        # "https://www.facebook.com/groups/737214643034696/", # 台中羽球揪團版
-        filter_keywords=['沙鹿', '西屯']
-    )
-
-    # Example with custom filters:
-    # viewer.view_posts_by_search("台中租屋", filter_keywords=[
-    #             "西屯", "南屯", "南區", "大里", "求租", 
-    #             "龍井", "梧棲", "沙鹿", "售價", "3房", 
-    #             "社宅", "社會住宅"
-    #         ])
+    # Run the viewer with the selected configuration
+    mode = viewer_args["mode"]
+    filter_keywords = viewer_args.get("filter_keywords", [])
+    
+    if mode == ViewerMode.BY_URL:
+        viewer.view_posts_by_url(viewer_args["url"], filter_keywords=filter_keywords)
+    elif mode == ViewerMode.BY_SEARCH:
+        viewer.view_posts_by_search(viewer_args["search_key"], filter_keywords=filter_keywords)

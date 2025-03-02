@@ -1,0 +1,26 @@
+# FB Viewer Configuration File
+
+# Default configuration to use if not specified
+default = "badminton"
+
+# Badminton configuration
+[configs.badminton]
+mode = "by_url"
+url = "https://www.facebook.com/groups/191628104570229/"  # 台中羽球同好版
+filter_keywords = ["沙鹿", "西屯", "朝馬", "新手-初階", "歡樂-初級"]
+
+# Alternative badminton configuration
+[configs.badminton_alt]
+mode = "by_url"
+url = "https://www.facebook.com/groups/737214643034696/"  # 台中羽球揪團版
+filter_keywords = ["沙鹿", "西屯", "朝馬", "新手-初階", "歡樂-初級"]
+
+# Rental configuration
+[configs.rental]
+mode = "by_search"
+search_key = "台中租屋"
+filter_keywords = [
+    "西屯", "南屯", "南區", "大里", "求租", 
+    "龍井", "梧棲", "沙鹿", "售價", "3房", 
+    "社宅", "社會住宅"
+]
